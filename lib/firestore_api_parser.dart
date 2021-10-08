@@ -1,9 +1,17 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
 library firestore_api_parser;
 
-export 'src/firestore_to_json.dart';
-export 'src/json_to_firestore.dart';
+import 'package:meta/meta.dart';
 
-// TODO: Export any libraries intended for clients of this package.
+part 'src/firestore_to_json.dart';
+
+part 'src/json_to_firestore.dart';
+
+@visibleForTesting
+class FirestoreApiParser {
+  /// Convert into JSON a received Cloud Firestore Json Document format
+  Map<String, dynamic> parseDocument({required Map<String, dynamic> firestoreJson}) =>
+      toJsonFormat(firestoreJson: firestoreJson);
+
+  /// Convert into a Cloud Firestore Json Document format a received Json
+  Map<String, dynamic> parseJson({required Map<String, dynamic> json}) => toFirestoreDocumentFormat(jsonMap: json);
+}
