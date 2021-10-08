@@ -6,7 +6,6 @@ part 'src/firestore_to_json.dart';
 
 part 'src/json_to_firestore.dart';
 
-@visibleForTesting
 class FirestoreApiParser {
   /// Convert to conventional json format the cloud firestore document json which is passed to it as a parameter.
   //
