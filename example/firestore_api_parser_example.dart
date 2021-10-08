@@ -23,13 +23,13 @@ void main() {
       coordinates: {'latitude': -64, 'longitude': -86});
   final fParser = FirestoreApiParser();
 
-  final doc = fParser.parseJson(json: jb.toJson());
+  final doc = fParser.toFirestoreJson(json: jb.toJson());
 
   print(doc);
 
   print('------------SEPARATOR------------');
 
-  final json = fParser.parseDocument(firestoreJson: doc);
+  final json = fParser.toJson(firestoreJson: doc);
 
   print(json);
 }
