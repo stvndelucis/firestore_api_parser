@@ -14,7 +14,7 @@ Map<String, dynamic> toFirestoreDocumentFormat({required Map<String, dynamic> js
 }
 
 @visibleForTesting
-Map<String, dynamic> getFirestoreRepresentation(value) {
+Map<String, dynamic> getFirestoreRepresentation(dynamic value) {
   if (value is String) {
     if (value.contains('/') && value.startsWith('projects/')) {
       return referenceDataRepresentation(value);
@@ -31,7 +31,7 @@ Map<String, dynamic> getFirestoreRepresentation(value) {
   } else if (value is num) {
     return intDataRepresentation(value);
   } else if (value is Map) {
-    if (value['latitude'] != null && value['longitude'] != null) {
+    if (value['latitude'] != null && value['longitude'] != null && value.keys.length == 2) {
       return geoPointDataRepresentation(value);
     } else {
       return mapDataRepresentation(value);
