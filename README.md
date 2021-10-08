@@ -2,12 +2,15 @@ A library for Dart developers.
 
 ## Usage
 
-A simple usage example:
+A simple usage example.
+For a more concrete and detailed example, please consult the [example file][example].
 
 ```dart
 import 'package:firestore_api_parser/firestore_api_parser.dart';
 
 main() {
+  
+  //For 
   
   // normal Json format
   final Map<String, dynamic> myJsonModel = {
@@ -44,3 +47,4 @@ main() {
 Please file feature requests and bugs at the [issue tracker][tracker].
 
 [tracker]: http://example.com/issues/replaceme
+[example]: https://github.com/stvndelucis/firestore_api_parser/blob/main/example/firestore_api_parser_example.dart

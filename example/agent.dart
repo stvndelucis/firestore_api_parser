@@ -29,11 +29,4 @@ class Agent {
   factory Agent.fromJson(Map<String, dynamic> data) => _$AgentFromJson(data);
 
   Map<String, dynamic> toJson() => _$AgentToJson(this);
-
-  @override
-  String toString() => '''
-  Names : $names
-  Missions : $missions
-  Status : $status
-    ''';
 }

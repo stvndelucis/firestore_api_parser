@@ -18,7 +18,7 @@ void main() {
       status: 'In service',
       round: 20.5,
       timestamp: DateTime.parse('2021-10-07T19:00:00Z'),
-      storageRef: 'projects/vumot-health-2fd0a/databases/(default)/documents/USERS/AnVHHk2DJGOLXfLRYLlh',
+      storageRef: 'projects/my_great_project/databases/(default)/documents/USERS/an_user_id',
       nullable: null,
       coordinates: {'latitude': -64, 'longitude': -86});
   final fParser = FirestoreApiParser();
@@ -27,58 +27,9 @@ void main() {
 
   print(doc);
 
-  print('------------SEPARATOR------------');
+  print('\n------------SEPARATOR------------\n');
 
   final json = fParser.toJson(firestoreJson: doc);
 
   print(json);
 }
-
-var x = {
-  'fields': {
-    'isme': {'booleanValue': true},
-    'projects': {
-      'arrayValue': {
-        'values': [
-          {'stringValue': 'Atlas Workspace'},
-          {'stringValue': 'Vumot'},
-          {'stringValue': 'Vumot Health'}
-        ]
-      }
-    },
-    'age': {'integerValue': 21},
-    'address': {'nullValue': null},
-    'round': {'integerValue': 20.5},
-    'name': {'stringValue': 'Steeven Delucis'},
-    'arrivage': {'timestampValue': '2021-10-07T19:00:00Z'},
-    'partner': {
-      'referenceValue': 'projects/vumot-health-2fd0a/databases/(default)/documents/USERS/AnVHHk2DJGOLXfLRYLlh'
-    },
-    'place': {
-      'geoPointValue': {'latitude': '-64', 'longitude': '-86'}
-    },
-    'job': {'stringValue': 'developer'},
-    'phones': {
-      'mapValue': {
-        'fields': {
-          'galaxy': {'stringValue': 'S21 Ultra'},
-          'array': {
-            'arrayValue': {
-              'values': [
-                {'stringValue': ''},
-                {
-                  'mapValue': {
-                    'fields': {
-                      'mymap': {'stringValue': '5'}
-                    }
-                  }
-                }
-              ]
-            }
-          },
-          'iphone': {'stringValue': '11 pro max'}
-        }
-      }
-    }
-  },
-};
