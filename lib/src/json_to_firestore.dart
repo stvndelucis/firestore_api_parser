@@ -28,8 +28,10 @@ Map<String, dynamic> getFirestoreRepresentation(dynamic value) {
     }
   } else if (value is bool) {
     return boolDataRepresentation(value);
-  } else if (value is num) {
+  } else if (value is int) {
     return intDataRepresentation(value);
+  } else if (value is double) {
+    return doubleDataRepresentation(value);
   } else if (value is Map) {
     if (value['latitude'] != null && value['longitude'] != null && value.keys.length == 2) {
       return geoPointDataRepresentation(value);
@@ -92,4 +94,7 @@ Map<String, dynamic> listDataRepresentation(List arrayValue) {
 Map<String, dynamic> stringDataRepresentation(String stringValue) => {'stringValue': stringValue};
 
 @visibleForTesting
-Map<String, dynamic> intDataRepresentation(num integerValue) => {'integerValue': integerValue};
+Map<String, dynamic> intDataRepresentation(int integerValue) => {'integerValue': integerValue};
+
+@visibleForTesting
+Map<String, dynamic> doubleDataRepresentation(double doubleValue) => {'doubleValue': doubleValue};

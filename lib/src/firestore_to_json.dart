@@ -12,6 +12,7 @@ dynamic parseToJson(Map values) {
     final key = entry.key;
     if (key == 'stringValue' ||
         key == 'integerValue' ||
+        key == 'doubleValue' ||
         key == 'timestampValue' ||
         key == 'booleanValue' ||
         key == 'geoPointValue' ||

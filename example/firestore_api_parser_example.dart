@@ -11,7 +11,6 @@ void main() {
 
   final names = {'lastname': 'BOND', 'firstname': 'James', 'initial': 'JB'};
 
-
   final jb = Agent(
       names: names,
       missions: missions,
@@ -23,13 +22,13 @@ void main() {
       coordinates: {'latitude': -64, 'longitude': -86});
   final fParser = FirestoreApiParser();
 
-  final doc = fParser.toFirestoreJson(json: jb.toJson());
+  final doc = fParser.parseJson(json: jb.toJson()); //convert
 
   print(doc);
 
   print('\n------------SEPARATOR------------\n');
 
-  final json = fParser.toJson(firestoreJson: doc);
+  final json = fParser.parseFirestoreDocument(documentJson: doc);
 
   print(json);
 }
