@@ -12,6 +12,7 @@ All values are supported:
 
 - stringValue
 - integerValue
+- doubleValue
 - booleanValue
 - mapValue
 - arrayValue
@@ -93,18 +94,20 @@ i.e:
 
 ```dart
 
-final goodGeoPointValue = {'longitude': '-86', 'latitude': '-64'};
+final goodGeoPointValue = {'longitude': -86, 'latitude': -64};
 ```
 
-- To store data as a timestampValue, you need to pass the date in isoString format like **YYYY-MM-DDTHH:MM:SSZ**. If the conversion of the date to the firestore json format fails, the value is stored
-  as a **stringValue**
+- To store data as a **timestampValue**, you need to pass the date in _isoString_ format like **YYYY-MM-DDTHH:MM:SSZ**. If the conversion of the date to the firestore json format fails, the value is
+  stored as a **stringValue**
 
 ## Features and bugs
 
-For any bugs report or feature requests, please contact me at this email address _steevenaime.pro@gmail.com_ .
+For any suggestions or feature requests, please contact us at _steevenaime.pro@gmail.com_ .
 
-Issue tracker for this plugin is coming soon :) stay safe!
+For any bugs report, post your problem in the  [issue tracker][tracker] section.
 
-[tracker]: http://example.com/issues/replaceme
+Stay safe!
+
+[tracker]: https://github.com/stvndelucis/firestore_api_parser/issues
 
 [example]: https://github.com/stvndelucis/firestore_api_parser/blob/main/example/firestore_api_parser_example.dart

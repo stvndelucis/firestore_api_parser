@@ -9,3 +9,9 @@ Adding support for meta^1.3.0
 Adding support these package :
 - json_serializable: ^4.1.4
 - json_annotation: ^4.0.1
+
+## 1.0.3
+In this update, we
+- Support for parsing and converting cloud firestore collection to standard json format, by using **parseCollection** method
+- have fixed some minor bugs
+- Added support for parsing doubleValue. Sorry to have forgotten, we are sorry for the inconvenience caused
