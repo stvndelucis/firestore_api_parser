@@ -65,7 +65,6 @@ List<dynamic> extractArrayData(Map arrayData) {
 
     return parsedArray;
   } else {
-    throw Exception(
-        'Cannot convert this Array (List) to a json readable format.\nThat sound like this is not a correct firestore Array representation.\nThe key "values" is missing,\nReceived Array(List) is $arrayData');
+    return [];
   }
 }

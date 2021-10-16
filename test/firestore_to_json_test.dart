@@ -52,7 +52,8 @@ void main() {
         ]
       };
 
-      expect(() => extractArrayData(arrayValue), throwsException);
+      final parsedArray = extractArrayData(arrayValue);
+      expect(parsedArray.length, 0);
     });
   });
 

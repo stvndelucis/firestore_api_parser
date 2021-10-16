@@ -15,3 +15,7 @@ In this update, we
 - Support for parsing and converting cloud firestore collection to standard json format, by using **parseCollection** method
 - have fixed some minor bugs
 - Added support for parsing doubleValue. Sorry to have forgotten, we are sorry for the inconvenience caused
+
+## 1.0.4
+- Fix minor bugs about parsing of a cloud firestore arrayValue
+- Deprecating toJson and toFirestoreJson methods
