@@ -43,34 +43,41 @@ import 'package:firestore_api_parser/firestore_api_parser.dart';
 A simple usage example. For a more concrete and detailed example, please consult the [example file][example].
 
 ```dart
+// Import firestore_api_parser
 import 'package:firestore_api_parser/firestore_api_parser.dart';
 
-main() {
-  // normal Json format
-  final Map<String, dynamic> myJsonModel = {
-    'names': {
-      'firstname': 'James',
-      'lastname': 'Bond',
-      'initial': 'JB'
-    },
-    'missions': [{'2021': 'No Time To Die'}, {'2015': 'Spectre'}, {'2006': 'Casino Royale'}]
-    'totalMissions': 3,
-  };
+import 'agent.dart';
 
-  //Initialize the FirestoreApiParser
-  final fParser = FirestoreApiParser();
+void main() {
+  final fsParser = FirestoreApiParser();
 
-  // Use the toFirestoreJson() method to convert a Json to Cloud Firestore document Json format
-  // and pass it your json 
-  final firestoreJson = fParser.toFirestoreJson(json: jb.toJson());
-  print(firestoreJson); //will print data as firestore json format
+  final missions = <Map<String, String>>[
+    {'2022': 'No Time To Die'},
+    {'2015': 'Spectre'},
+    {'2006': 'Casino Royale'},
+  ];
 
-  print('\n------------SEPARATOR------------\n');
+  final names = {'lastname': 'BOND', 'firstname': 'James', 'initial': 'JB'};
 
-  // Use the toJson() method to convert a Cloud Firestore document json to a normal json
-  //and pass it the firestore json format
-  final json = fParser.toJson(firestoreJson: firestoreJson);
-  print(json);
+  final bond = Agent(
+    names: names,
+    missions: missions,
+    status: 'In service',
+    round: 20.5,
+    timestamp: DateTime.parse('2021-10-07T19:00:00Z'),
+    storageRef: 'projects/my_great_project/databases/(default)/documents/USERS/[doc_id]',
+    nullable: null,
+    coordinates: {'latitude': -64, 'longitude': -86},
+  );
+
+  // Will convert [bond] to the format json used by Firestore format documents
+  final firestoreJsonDoc = fsParser.parseJson(json: bond.toJson());
+
+  // Will convert [firestoreJsonDoc] to a "normal" JSON format representation
+  final json = fsParser.parseFirestoreDocument(documentJson: firestoreJsonDoc);
+
+  // You can use this method bellow to parse & convert firestore collection to JSON
+  // fsParser.parseCollection(firestoreCollection: firestoreCollection);
 }
 
 ```
@@ -99,6 +106,43 @@ final goodGeoPointValue = {'longitude': -86, 'latitude': -64};
 
 - To store data as a **timestampValue**, you need to pass the date in _isoString_ format like **YYYY-MM-DDTHH:MM:SSZ**. If the conversion of the date to the firestore json format fails, the value is
   stored as a **stringValue**
+
+- For a better result and to avoid bugs or unexpected behaviors, we recommend you to use the [json_serializable](https://pub.dev/packages/json_serializable) package (or any other JSON serialization tool) to serialize your data / object into JSON as follows:
+```dart
+import 'package:json_annotation/json_annotation.dart';
+
+part 'agent.g.dart';
+
+@JsonSerializable()
+class Agent {
+  final String storageRef;
+  final DateTime timestamp;
+  final String? nullable;
+  final double round;
+  final Map<String, num> coordinates;
+
+  final Map<String, dynamic> names;
+  final List missions;
+
+  Agent({
+    required this.coordinates,
+    required this.storageRef,
+    required this.timestamp,
+    required this.round,
+    this.nullable,
+    required this.names,
+    required this.missions,
+    required this.status,
+  });
+
+  final String status;
+
+  factory Agent.fromJson(Map<String, dynamic> data) => _$AgentFromJson(data);
+
+  Map<String, dynamic> toJson() => _$AgentToJson(this);
+}
+```
+
 
 ## Features and bugs
 
