@@ -19,3 +19,9 @@ In this update, we
 ## 1.0.4
 - Fix minor bugs about parsing of a cloud firestore arrayValue
 - Deprecating toJson and toFirestoreJson methods
+
+## 1.0.5
+- Fixed the bug that unintentionally converted a **string** into a **timestamp**.
+Now, for a string to be recognized in **timestamp** format in Firestore, it must be in **Iso8601 utc** format (so it must end with Z) otherwise it will be stored in Firestore as **stringValue** if the conversion fails.
+- Updated plugin example use
+- Updated plugin description

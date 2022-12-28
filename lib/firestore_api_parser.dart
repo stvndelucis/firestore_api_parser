@@ -1,6 +1,7 @@
 library firestore_api_parser;
 
 import 'package:meta/meta.dart';
+import 'package:intl/intl.dart';
 
 part 'src/firestore_to_json.dart';
 

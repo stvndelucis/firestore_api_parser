@@ -12,12 +12,27 @@ void main() {
         expect(parsedValue['referenceValue'], referenceValue);
       });
 
-      test('Expecting given String will be represented as a firestore timestamp representation', () {
-        final timestampValue = '2021-10-07T19:00:00Z';
+      group('TESTING DATE VALUE', (){
 
-        final parsedValue = getFirestoreRepresentation(timestampValue);
+        test('Expecting given String will be represented as a firestore timestamp representation', () {
+          final timestampValue = '2021-10-07T19:00:00Z';
 
-        expect(parsedValue['timestampValue'], timestampValue);
+          final parsedValue = getFirestoreRepresentation(timestampValue);
+
+          expect(parsedValue.containsKey('stringValue'), true);
+        });
+
+        test('wrong String as millisecond since epoch, expecting to be represented as stringValue in firestrore',
+                () {
+          final wrongMilliSecond = DateTime.now().millisecondsSinceEpoch.toString();
+
+          final parsedValue = getFirestoreRepresentation(wrongMilliSecond);
+
+          print(parsedValue);
+          expect(parsedValue.containsKey('timestampValue'), true);
+        });
+
+
       });
 
       test('Expecting given String will be represented as a firestore simple literal string representation', () {
@@ -51,7 +66,7 @@ void main() {
 
         final parsedValue = getFirestoreRepresentation(doubleValue);
 
-        expect(parsedValue['integerValue'], 26.5);
+        expect(parsedValue['doubleValue'], 26.5);
       });
     });
 
@@ -106,12 +121,9 @@ void main() {
     });
 
     test('Testing an unsupported firestore type given', () {
-
       final Object unsupportedType = Object();
 
-      expect(()=> getFirestoreRepresentation(unsupportedType), throwsException);
-
-
+      expect(() => getFirestoreRepresentation(unsupportedType), throwsException);
     });
   });
 }

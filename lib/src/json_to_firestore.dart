@@ -20,15 +20,26 @@ Map<String, dynamic> getFirestoreRepresentation(dynamic value) {
       return referenceDataRepresentation(value);
     }
 
-    try {
-      DateTime.parse(value);
-      return timestampDataRepresentation(value);
-    } catch (_) {
+    final date = DateTime.tryParse(value);
+
+    final isDate = date != null;
+
+    if (!isDate) {
       return stringDataRepresentation(value);
     }
+
+    if (date!.toIso8601String().endsWith('Z')) {
+      return timestampDataRepresentation(value);
+    }
+
+    return stringDataRepresentation(value);
   } else if (value is bool) {
     return boolDataRepresentation(value);
   } else if (value is int) {
+    try {
+      final dateTime = DateTime.parse('$value');
+      return timestampDataRepresentation(dateTime.toIso8601String());
+    } catch (_) {}
     return intDataRepresentation(value);
   } else if (value is double) {
     return doubleDataRepresentation(value);
@@ -43,8 +54,7 @@ Map<String, dynamic> getFirestoreRepresentation(dynamic value) {
   } else if (value == null) {
     return nullDataRepresentation();
   } else {
-    throw Exception("Le type ${value.runtimeType} n'est pas (pour l'instant) pris en charge par notre plugin."
-        "Vous pouvez ecrire à notre support pour nous soumettre des suggestions d'amelioration");
+    throw Exception("Type ${value.runtimeType} is not (for now) supported by our plugin.");
   }
 }
 
