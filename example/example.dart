@@ -29,8 +29,11 @@ void main() {
   final firestoreJsonDoc = fsParser.parseJson(json: bond.toJson());
 
   // Will convert [firestoreJsonDoc] to a "normal" JSON format representation
-  final json = fsParser.parseFirestoreDocument(documentJson: firestoreJsonDoc);
+  final json = fsParser.parseFirestoreDocument(doc: firestoreJsonDoc);
 
   // You can use this method bellow to parse & convert firestore collection to JSON
-  // fsParser.parseCollection(firestoreCollection: firestoreCollection);
+  // final document = fsParser.parseCollection(collection: firestoreCollection);
+
+  // if your firestore collection is a result of a structuredQuery, set isStructuredQuery parameter to true
+  // final documentFromQuery = fsParser.parseCollection(collection: firestoreCollection, isStructuredQuery: true);
 }

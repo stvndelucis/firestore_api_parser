@@ -2,7 +2,7 @@ name: firestore_api_parser
 description: >-
   A Flutter and Dart plugin allowing you to convert the JSON format used by firestore REST API
   to represent its documents or collections to the conventional and usable JSON format
-version: 1.0.6
+version: 1.1.0
 repository: https://github.com/stvndelucis/firestore_api_parser
 
 environment:

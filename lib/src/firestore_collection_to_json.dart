@@ -1,22 +1,34 @@
 part of firestore_api_parser;
 
 @visibleForTesting
-Map<String, dynamic> collectionToJson({required Map<String, dynamic> collection}) {
-  if (collection['documents'] != null) {
-    var parsedCollection = {};
-    var parsedCollectionData = [];
-    final documents = collection['documents'];
+List<dynamic> collectionToJson({required dynamic collection, bool isStructuredQuery = false}) {
 
-    for (var document in documents) {
-      final parsedDocument = toJsonFormat(firestoreJson: document);
-      parsedCollectionData.add(parsedDocument);
+  final jsonDocs = [];
+
+  if (isStructuredQuery) {
+    for (final doc in collection) {
+      final data = doc['document'];
+      if (data == null) {
+        throw Exception('Cannot parse this firestore document, "document" fields is missing.\nReceived document $data');
+      }
+
+      final jsonDoc = toJsonFormat(firestoreJson: data);
+
+      jsonDocs.add(jsonDoc);
     }
-
-    parsedCollection['documents'] = parsedCollectionData;
-
-    return parsedCollection.cast<String, dynamic>();
   } else {
-    throw Exception(
-        'Cannot parse this firestore collection, "documents" fields is missing.\nReceived collection $collection');
+    final docs = collection['documents'];
+
+    if (docs != null) {
+      for (var document in docs) {
+        final jsonDoc = toJsonFormat(firestoreJson: document);
+        jsonDocs.add(jsonDoc);
+      }
+    } else {
+      throw Exception(
+          'Cannot parse this firestore collection, "documents" fields is missing.\nReceived collection $collection');
+    }
   }
+
+  return jsonDocs;
 }

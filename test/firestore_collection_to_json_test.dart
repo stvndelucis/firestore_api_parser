@@ -36,13 +36,7 @@ void main() {
       };
 
       final parsedCollection = collectionToJson(collection: collection);
-
-      expect(parsedCollection['documents'] != null, parsedCollection['documents'] != null);
-      expect(parsedCollection['documents'].length, 2);
     });
-
-
-
 
     test('Testing with a good collection map', () {
       var collection = {
