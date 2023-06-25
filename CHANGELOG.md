@@ -59,3 +59,6 @@ In this update, we
 3. Suppression of depreciated methods `toFirestoreJson()`, `toJson()`
 
 4. Updated README.md file
+
+## 1.1.1
+Upgrading intl package to ^0.18.0
