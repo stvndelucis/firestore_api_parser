@@ -61,4 +61,5 @@ In this update, we
 4. Updated README.md file
 
 ## 1.1.1
-Upgrading intl package to ^0.18.0
+- intl package upgraded to ^0.18.0
+- environnement constraint upgraded to '>=2.12.0 <4.0.0'
