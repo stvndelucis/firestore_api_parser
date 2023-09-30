@@ -1,70 +1,50 @@
 part of firestore_api_parser;
 
 @visibleForTesting
-Map<String, dynamic> toJsonFormat({required Map<String, dynamic> firestoreJson}) {
-  final jsonMap = extractMapData(firestoreJson);
-  return jsonMap;
+Map<String, dynamic> toStandardJsonFormat({required Map<String, dynamic> firestoreJson}) =>
+    decodeMapData(firestoreJson);
+
+@visibleForTesting
+dynamic parseToJson(Map values) => values.map((key, value) {
+      switch (key) {
+        case 'stringValue':
+        case 'integerValue':
+        case 'doubleValue':
+        case 'timestampValue':
+        case 'booleanValue':
+        case 'geoPointValue':
+        case 'referenceValue':
+          return MapEntry(key, value);
+
+        case 'arrayValue':
+          return MapEntry(key, decodeArrayData(value));
+
+        case 'mapValue':
+          return MapEntry(key, decodeMapData(value));
+
+        case 'nullValue':
+          return MapEntry(key, null);
+
+        default:
+          throw Exception('Cannot convert this value to a json readable format. '
+              'That sound like this value type $key is not supported by firestore.\nReceived data $values');
+      }
+    });
+
+@visibleForTesting
+Map<String, dynamic> decodeMapData(Map<String, dynamic> mapData) {
+  final fields = mapData['fields'] as Map<String, dynamic>?;
+
+  if (fields == null) return const {};
+
+  return fields.map((key, value) => MapEntry(key, parseToJson(value)));
 }
 
 @visibleForTesting
-dynamic parseToJson(Map values) {
-  for (var entry in values.entries) {
-    final key = entry.key;
-    if (key == 'stringValue' ||
-        key == 'integerValue' ||
-        key == 'doubleValue' ||
-        key == 'timestampValue' ||
-        key == 'booleanValue' ||
-        key == 'geoPointValue' ||
-        key == 'referenceValue') {
-      return entry.value;
-    } else if (key == 'arrayValue') {
-      return extractArrayData(entry.value);
-    } else if (key == 'mapValue') {
-      return extractMapData(entry.value);
-    } else if (key == 'nullValue') {
-      return null;
-    } else {
-      throw Exception(
-          'Cannot convert this value to a json readable format. That sound like this value type $key is not supported by firestore.\nReceived data is $values');
-    }
-  }
-}
+List<dynamic> decodeArrayData(Map arrayData) {
+  if (arrayData['values'] == null) return [];
 
-@visibleForTesting
-Map<String, dynamic> extractMapData(Map mapData) {
-  if (mapData['fields'] != null) {
-    final fields = mapData['fields'] as Map;
+  final values = arrayData['values'] as List<dynamic>;
 
-    final parsedMap = <String, dynamic>{};
-
-    for (var entry in fields.entries) {
-      final parsedEntryValue = parseToJson(entry.value);
-      parsedMap[entry.key] = parsedEntryValue;
-    }
-
-    return parsedMap;
-  } else {
-    throw Exception(
-        'Cannot convert this Map to a json readable format. The key "fields" is missing.\nReceived Map is $mapData');
-  }
-}
-
-@visibleForTesting
-List<dynamic> extractArrayData(Map arrayData) {
-  if (arrayData['values'] != null) {
-    final values = arrayData['values'] as List;
-
-    final parsedArray = <dynamic>[];
-
-    for (var value in values) {
-      final parsedValue = parseToJson(value);
-
-      parsedArray.add(parsedValue);
-    }
-
-    return parsedArray;
-  } else {
-    return [];
-  }
+  return values.map((value) => parseToJson(value)).toList();
 }

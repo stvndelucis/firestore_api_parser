@@ -61,5 +61,21 @@ In this update, we
 4. Updated README.md file
 
 ## 1.1.1
+
 - intl package upgraded to ^0.18.0
 - environnement constraint upgraded to '>=2.12.0 <4.0.0'
+
+## 1.1.2
+
+**BREAKING CHANGES!**
+
+1. Parsing a structured query collection support was removed until we can implement a solid, viable solution... Coming
+   soon :).
+2. Adding extension methods `toFirestoreJson` and `toStandardJson` to encode and decode documents. Also
+   added `parseCollection` extension method to decode a firestore collection.
+3. Improved code structure to enhance maintainability.
+4. Map and Array firestore now return empty values instead of throwing an exception when "fields" or "values" are not
+   supplied.
+5. Updated project dependencies.
+6. Improved package tests.
+7. Updated example and README file.

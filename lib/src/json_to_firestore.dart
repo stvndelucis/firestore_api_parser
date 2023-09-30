@@ -1,86 +1,68 @@
 part of firestore_api_parser;
 
+final firestoreReferenceRegex = RegExp(r'^projects\/.+\/databases\/\(default\)\/documents\/.+\/.+$');
+final dateTimeRegex = RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z)?$'); // timezone is optional
+
 @visibleForTesting
 Map<String, dynamic> toFirestoreDocumentFormat({required Map<String, dynamic> jsonMap}) {
-  final data = {};
+  final data = jsonMap.map((key, value) => MapEntry(key, encodeData(value)));
 
-  for (var key in jsonMap.keys) {
-    data[key] = getFirestoreRepresentation(jsonMap[key]);
-  }
-
-  final parsedFirestore = {'fields': data};
-
-  return parsedFirestore;
+  return {'fields': data};
 }
 
 @visibleForTesting
-Map<String, dynamic> getFirestoreRepresentation(dynamic value) {
+Map<String, dynamic> encodeData(dynamic value) {
+  if (value == null) return encodeNullData();
+
   if (value is String) {
-    if (value.contains('/') && value.startsWith('projects/')) {
-      return referenceDataRepresentation(value);
-    }
+    if (firestoreReferenceRegex.hasMatch(value)) return encodeReferenceData(value);
 
-    final date = DateTime.tryParse(value);
+    final isValidDateTime = dateTimeRegex.hasMatch(value);
+    if (isValidDateTime) return encodeTimestampData(value);
 
-    final isDate = date != null;
-
-    if (!isDate) {
-      return stringDataRepresentation(value);
-    }
-
-    if (date!.toIso8601String().endsWith('Z')) {
-      return timestampDataRepresentation(value);
-    }
-
-    return stringDataRepresentation(value);
-  } else if (value is bool) {
-    return boolDataRepresentation(value);
-  } else if (value is int) {
-    try {
-      final dateTime = DateTime.parse('$value');
-      return timestampDataRepresentation(dateTime.toIso8601String());
-    } catch (_) {}
-    return intDataRepresentation(value);
-  } else if (value is double) {
-    return doubleDataRepresentation(value);
-  } else if (value is Map) {
-    if (value['latitude'] != null && value['longitude'] != null && value.keys.length == 2) {
-      return geoPointDataRepresentation(value);
-    } else {
-      return mapDataRepresentation(value);
-    }
-  } else if (value is List) {
-    return listDataRepresentation(value);
-  } else if (value == null) {
-    return nullDataRepresentation();
-  } else {
-    throw Exception("Type ${value.runtimeType} is not (for now) supported by our plugin.");
+    return encodeStringData(value);
   }
+
+  if (value is DateTime) return encodeTimestampData('${value.millisecondsSinceEpoch}');
+
+  if (value is int) return encodeIntData(value);
+
+  if (value is bool) return encodeBoolData(value);
+
+  if (value is double) return encodeDoubleData(value);
+
+  if (value is Map) {
+    final isGeoPointData = value.containsKey('latitude') && value.containsKey('longitude') && value.entries.length == 2;
+    if (isGeoPointData) return encodeGeoPointData(value);
+
+    return encodeMapData(value);
+  }
+
+  if (value is List) return encodeListData(value);
+
+  throw Exception("Type ${value.runtimeType} is not (for now) supported by our plugin.");
 }
 
 @visibleForTesting
-Map<String, dynamic> nullDataRepresentation() => {'nullValue': null};
+Map<String, dynamic> encodeNullData() => {'nullValue': null};
 
 @visibleForTesting
-Map<String, dynamic> boolDataRepresentation(bool booleanValue) => {'booleanValue': booleanValue};
+Map<String, dynamic> encodeBoolData(bool booleanValue) => {'booleanValue': booleanValue};
 
 @visibleForTesting
-Map<String, dynamic> geoPointDataRepresentation(Map geoPointValue) => {'geoPointValue': geoPointValue};
+Map<String, dynamic> encodeGeoPointData(Map geoPointValue) => {'geoPointValue': geoPointValue};
 
 @visibleForTesting
-Map<String, dynamic> timestampDataRepresentation(String timestampValue) => {'timestampValue': timestampValue};
+Map<String, dynamic> encodeTimestampData(String timestampValue) => {'timestampValue': timestampValue};
 
 @visibleForTesting
-Map<String, dynamic> referenceDataRepresentation(String stringValue) => {'referenceValue': stringValue};
+Map<String, dynamic> encodeReferenceData(String stringValue) => {'referenceValue': stringValue};
 
 @visibleForTesting
-Map<String, dynamic> mapDataRepresentation(Map mapValue) {
-  var mapData = {};
+Map<String, dynamic> encodeMapData(Map mapValue) {
+  if (mapValue.isEmpty) return const {'mapValue': {}};
 
-  for (var entry in mapValue.entries) {
-    final parsedEntryValue = getFirestoreRepresentation(entry.value);
-    mapData[entry.key] = parsedEntryValue;
-  }
+  final mapData = mapValue.map((key, value) => MapEntry(key, encodeData(value)));
 
   return {
     'mapValue': {'fields': mapData}
@@ -88,23 +70,21 @@ Map<String, dynamic> mapDataRepresentation(Map mapValue) {
 }
 
 @visibleForTesting
-Map<String, dynamic> listDataRepresentation(List arrayValue) {
-  var arrayData = [];
+Map<String, dynamic> encodeListData(List arrayValue) {
+  if (arrayValue.isEmpty) return const {'arrayValue': {}};
 
-  for (var value in arrayValue) {
-    final parsedValue = getFirestoreRepresentation(value);
-    arrayData.add(parsedValue);
-  }
+  final arrayData = arrayValue.map((value) => encodeData(value)).toList(growable: false);
+
   return {
     'arrayValue': {'values': arrayData}
   };
 }
 
 @visibleForTesting
-Map<String, dynamic> stringDataRepresentation(String stringValue) => {'stringValue': stringValue};
+Map<String, dynamic> encodeStringData(String stringValue) => {'stringValue': stringValue};
 
 @visibleForTesting
-Map<String, dynamic> intDataRepresentation(int integerValue) => {'integerValue': integerValue};
+Map<String, dynamic> encodeIntData(int integerValue) => {'integerValue': '$integerValue'};
 
 @visibleForTesting
-Map<String, dynamic> doubleDataRepresentation(double doubleValue) => {'doubleValue': doubleValue};
+Map<String, dynamic> encodeDoubleData(double doubleValue) => {'doubleValue': doubleValue};

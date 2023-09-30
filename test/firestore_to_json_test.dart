@@ -9,7 +9,7 @@ void main() {
         '2006': {'stringValue': 'Casino Royale'}
       };
 
-      expect(() => extractMapData(fakeFirestoreMap), throwsException);
+      expect(() => decodeMapData(fakeFirestoreMap), throwsException);
     });
 
     test(
@@ -23,7 +23,7 @@ void main() {
 
       final expectedData = {'2006': 'Casino Royale'};
 
-      final parsedData = extractMapData(goodFirestoreMap);
+      final parsedData = decodeMapData(goodFirestoreMap);
 
       expect(parsedData['2006'].toString(), expectedData['2006']);
     });
@@ -38,7 +38,7 @@ void main() {
           {'stringValue': 'Data 3'}
         ]
       };
-      final parsedArray = extractArrayData(arrayValue);
+      final parsedArray = decodeArrayData(arrayValue);
 
       expect(parsedArray.length, 3);
     });
@@ -52,7 +52,7 @@ void main() {
         ]
       };
 
-      final parsedArray = extractArrayData(arrayValue);
+      final parsedArray = decodeArrayData(arrayValue);
       expect(parsedArray.length, 0);
     });
   });
@@ -63,6 +63,7 @@ void main() {
 
       final parsedValue = parseToJson(stringValue);
       expect(parsedValue.runtimeType, String);
+      expect(parsedValue, 'Steeven Delucis');
     });
 
     test('retrieving a int Value', () {
@@ -70,6 +71,7 @@ void main() {
       final parsedValue = parseToJson(intValue);
 
       expect(parsedValue.runtimeType, int);
+      expect(parsedValue, 26);
     });
 
     test('retrieving a double Value', () {
@@ -77,6 +79,7 @@ void main() {
       final parsedValue = parseToJson(doubleValue);
 
       expect(parsedValue.runtimeType, double);
+      expect(parsedValue, 26.5);
     });
 
     test('retrieving a timestamp (DateTime) Value', () {
@@ -86,6 +89,8 @@ void main() {
       final dateTime = DateTime.parse(parsedValue);
 
       expect(parsedValue.runtimeType, String);
+      expect(parsedValue, '2021-10-07T19:00:00Z');
+
       expect(dateTime.runtimeType, DateTime);
     });
 
@@ -94,6 +99,7 @@ void main() {
       final parsedValue = parseToJson(booleanValue);
 
       expect(parsedValue.runtimeType, bool);
+      expect(parsedValue, true);
     });
 
     test('retrieving a gepPoint Value', () {
@@ -107,65 +113,11 @@ void main() {
     });
 
     test('retrieving a reference Value', () {
-      final referenceValue = {'referenceValue': 'projects/my_project/databases/(default)/documents/USERS/an_user_id'};
+      final referenceValue = {'referenceValue': 'projects/my_project/databases/(default)/documents/USERS/abc123'};
       final parsedValue = parseToJson(referenceValue);
 
       expect(parsedValue.runtimeType, String);
-    });
-
-    test('retrieving a String Value', () {
-      final stringValue = {'stringValue': 'Steeven Delucis'};
-
-      final parsedValue = parseToJson(stringValue);
-      expect(parsedValue.runtimeType, String);
-    });
-
-    test('retrieving a int Value', () {
-      final intValue = {'integerValue': 26};
-      final parsedValue = parseToJson(intValue);
-
-      expect(parsedValue.runtimeType, int);
-    });
-
-    test('retrieving a double Value', () {
-      final doubleValue = {'integerValue': 26.5};
-      final parsedValue = parseToJson(doubleValue);
-
-      expect(parsedValue.runtimeType, double);
-    });
-
-    test('retrieving a timestamp (DateTime) Value', () {
-      final timestampValue = {'timestampValue': '2021-10-07T19:00:00Z'};
-      final parsedValue = parseToJson(timestampValue);
-
-      final dateTime = DateTime.parse(parsedValue);
-
-      expect(parsedValue.runtimeType, String);
-      expect(dateTime.runtimeType, DateTime);
-    });
-
-    test('retrieving a bool Value', () {
-      final booleanValue = {'booleanValue': true};
-      final parsedValue = parseToJson(booleanValue);
-
-      expect(parsedValue.runtimeType, bool);
-    });
-
-    test('retrieving a gepPoint Value', () {
-      final booleanValue = {
-        'geoPointValue': {'latitude': '-64', 'longitude': '-86'}
-      };
-      final parsedValue = parseToJson(booleanValue);
-
-      expect(parsedValue['latitude'], '-64');
-      expect(parsedValue['longitude'], '-86');
-    });
-
-    test('retrieving a reference Value', () {
-      final referenceValue = {'referenceValue': 'projects/my_project/databases/(default)/documents/USERS/an_user_id'};
-      final parsedValue = parseToJson(referenceValue);
-
-      expect(parsedValue.runtimeType, String);
+      expect(parsedValue, 'projects/my_project/databases/(default)/documents/USERS/abc123');
     });
 
     test('retrieving a null Value', () {
