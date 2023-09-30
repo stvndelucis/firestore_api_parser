@@ -1,70 +1,52 @@
 part of firestore_api_parser;
 
 @visibleForTesting
-Map<String, dynamic> toJsonFormat({required Map<String, dynamic> firestoreJson}) {
-  final jsonMap = extractMapData(firestoreJson);
-  return jsonMap;
-}
+Map<String, dynamic> toStandardJsonFormat({required Map<String, dynamic> firestoreJson}) =>
+    decodeMapData(firestoreJson);
 
 @visibleForTesting
-dynamic parseToJson(Map values) {
-  for (var entry in values.entries) {
-    final key = entry.key;
-    if (key == 'stringValue' ||
-        key == 'integerValue' ||
-        key == 'doubleValue' ||
-        key == 'timestampValue' ||
-        key == 'booleanValue' ||
-        key == 'geoPointValue' ||
-        key == 'referenceValue') {
+dynamic decodeData(MapEntry entry) {
+  switch (entry.key) {
+    case 'stringValue':
+    case 'doubleValue':
+    case 'timestampValue':
+    case 'booleanValue':
+    case 'geoPointValue':
+    case 'referenceValue':
       return entry.value;
-    } else if (key == 'arrayValue') {
-      return extractArrayData(entry.value);
-    } else if (key == 'mapValue') {
-      return extractMapData(entry.value);
-    } else if (key == 'nullValue') {
+
+    case 'integerValue':
+      return int.parse(entry.value);
+
+    case 'arrayValue':
+      return decodeArrayData(entry.value);
+
+    case 'mapValue':
+      return decodeMapData(entry.value);
+
+    case 'nullValue':
       return null;
-    } else {
-      throw Exception(
-          'Cannot convert this value to a json readable format. That sound like this value type $key is not supported by firestore.\nReceived data is $values');
-    }
+
+    default:
+      throw Exception('Cannot convert this value to a json readable format. '
+          'That sound like this value type ${entry.key} is not supported by firestore.\nReceived data ${entry.value}');
   }
 }
 
 @visibleForTesting
-Map<String, dynamic> extractMapData(Map mapData) {
-  if (mapData['fields'] != null) {
-    final fields = mapData['fields'] as Map;
+Map<String, dynamic> decodeMapData(Map<String, dynamic> mapData) {
+  var fields = mapData['fields'] as Map<String, dynamic>?;
 
-    final parsedMap = <String, dynamic>{};
+  if (fields == null) return const {};
 
-    for (var entry in fields.entries) {
-      final parsedEntryValue = parseToJson(entry.value);
-      parsedMap[entry.key] = parsedEntryValue;
-    }
-
-    return parsedMap;
-  } else {
-    throw Exception(
-        'Cannot convert this Map to a json readable format. The key "fields" is missing.\nReceived Map is $mapData');
-  }
+  return fields.map((key, value) => MapEntry(key, decodeData(value.entries.first)));
 }
 
 @visibleForTesting
-List<dynamic> extractArrayData(Map arrayData) {
-  if (arrayData['values'] != null) {
-    final values = arrayData['values'] as List;
+List<dynamic> decodeArrayData(Map arrayData) {
+  if (arrayData['values'] == null) return [];
 
-    final parsedArray = <dynamic>[];
+  final values = arrayData['values'] as List<dynamic>;
 
-    for (var value in values) {
-      final parsedValue = parseToJson(value);
-
-      parsedArray.add(parsedValue);
-    }
-
-    return parsedArray;
-  } else {
-    return [];
-  }
+  return values.map((value) => decodeData(value.entries.first)).toList();
 }

@@ -1,39 +1,37 @@
-// Import firestore_api_parser
 import 'package:firestore_api_parser/firestore_api_parser.dart';
 
 import 'agent.dart';
 
 void main() {
-  final fsParser = FirestoreApiParser();
-
-  final missions = <Map<String, String>>[
-    {'2022': 'No Time To Die'},
-    {'2015': 'Spectre'},
-    {'2006': 'Casino Royale'},
-  ];
-
   final names = {'lastname': 'BOND', 'firstname': 'James', 'initial': 'JB'};
 
   final bond = Agent(
     names: names,
-    missions: missions,
+    missions: [
+      {'2022': 'No Time To Die'},
+      {'2015': 'Spectre'},
+      {'2006': 'Casino Royale'},
+    ],
     status: 'In service',
     round: 20.5,
-    timestamp: DateTime.parse('2021-10-07T19:00:00Z'),
+    timestamp: DateTime.utc(2021, 10, 07, 19, 00, 00),
     storageRef: 'projects/my_great_project/databases/(default)/documents/USERS/[doc_id]',
     nullable: null,
-    coordinates: {'latitude': -64, 'longitude': -86},
+    coordinates: const {'latitude': -64, 'longitude': -86},
   );
 
   // Will convert [bond] to the format json used by Firestore format documents
-  final firestoreJsonDoc = fsParser.parseJson(json: bond.toJson());
+  final firestoreJsonDoc = FirestoreApiParser.convertToFirestoreDocument(json: bond.toJson());
 
-  // Will convert [firestoreJsonDoc] to a "normal" JSON format representation
-  final json = fsParser.parseFirestoreDocument(doc: firestoreJsonDoc);
+  //using extension method
+  // final firestoreJsonDoc = bond.toJson().toFirestoreJson;
+
+  // Will convert [firestoreJsonDoc] to a "standard" JSON format representation
+  final json = FirestoreApiParser.convertToStandardJson(doc: firestoreJsonDoc);
+
+  //using extension method
+  // final json =  firestoreJsonDoc.toStandardJson;
 
   // You can use this method bellow to parse & convert firestore collection to JSON
-  // final document = fsParser.parseCollection(collection: firestoreCollection);
-
-  // if your firestore collection is a result of a structuredQuery, set isStructuredQuery parameter to true
-  // final documentFromQuery = fsParser.parseCollection(collection: firestoreCollection, isStructuredQuery: true);
+  // final document = FirestoreApiParser.parseCollection(collection: firestoreCollection);
 }

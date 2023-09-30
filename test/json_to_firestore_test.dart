@@ -2,128 +2,154 @@ import 'package:firestore_api_parser/firestore_api_parser.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('Testing getFirestoreRepresentation function', () {
-    group('Testing all String', () {
-      test('Expecting given String will be represented as a firestore reference representation', () {
-        final referenceValue = 'projects/my_great_project/databases/(default)/documents/USERS/an_user_id';
+  group('encodeData', () {
+    //
+    test('It should encode value as referenceValue because it match referenceValue pattern', () {
+      final value = 'projects/my_great_project/databases/(default)/documents/USERS/abc123';
 
-        final parsedValue = getFirestoreRepresentation(referenceValue);
+      final parsedValue = encodeData(value);
 
-        expect(parsedValue['referenceValue'], referenceValue);
-      });
+      final expected = {'referenceValue': 'projects/my_great_project/databases/(default)/documents/USERS/abc123'};
 
-      group('TESTING DATE VALUE', (){
-
-        test('Expecting given String will be represented as a firestore timestamp representation', () {
-          final timestampValue = '2021-10-07T19:00:00Z';
-
-          final parsedValue = getFirestoreRepresentation(timestampValue);
-
-          expect(parsedValue.containsKey('stringValue'), true);
-        });
-
-        test('wrong String as millisecond since epoch, expecting to be represented as stringValue in firestrore',
-                () {
-          final wrongMilliSecond = DateTime.now().millisecondsSinceEpoch.toString();
-
-          final parsedValue = getFirestoreRepresentation(wrongMilliSecond);
-
-          print(parsedValue);
-          expect(parsedValue.containsKey('timestampValue'), true);
-        });
-
-
-      });
-
-      test('Expecting given String will be represented as a firestore simple literal string representation', () {
-        final stringValue = 'Steeven Delucis';
-
-        final parsedValue = getFirestoreRepresentation(stringValue);
-
-        expect(parsedValue['stringValue'], stringValue);
-      });
+      expect(parsedValue, expected);
     });
 
-    test('Testing bool value represention', () {
-      final boolValue = true;
+    test('It should encode value as timestampValue because it match a valid date pattern', () {
+      final value = '2021-10-07T19:00:00Z';
 
-      final parsedValue = getFirestoreRepresentation(boolValue);
+      final parsedValue = encodeData(value);
 
-      expect(parsedValue['booleanValue'], true);
+      final excepted = {'timestampValue': '2021-10-07T19:00:00Z'};
+
+      expect(parsedValue, excepted);
     });
 
-    group('Testing num value representation', () {
-      test('Testing int value', () {
-        final intValue = 26;
+    test("It should encode value as a stringValue because it's a simple String", () {
+      final value = 'Steeven Delucis';
 
-        final parsedValue = getFirestoreRepresentation(intValue);
-
-        expect(parsedValue['integerValue'], 26);
-      });
-
-      test('Testing double value', () {
-        final doubleValue = 26.5;
-
-        final parsedValue = getFirestoreRepresentation(doubleValue);
-
-        expect(parsedValue['doubleValue'], 26.5);
-      });
+      final parsedValue = encodeData(value);
+      final expected = {'stringValue':'Steeven Delucis'};
+      expect(parsedValue, expected);
     });
 
-    group('Testing Map value', () {
-      test('Testing this Map should be represented as a geoPointValue', () {
-        final geoPointValue = {'latitude': '-64', 'longitude': '-84'};
+    test("It should encode value as booleanValue because it's a simple bool", () {
+      final value = true;
 
-        final parsedValue = getFirestoreRepresentation(geoPointValue);
+      final parsedValue = encodeData(value);
+      final expected = {'booleanValue': true};
 
-        expect(parsedValue['geoPointValue']['latitude'], '-64');
-        expect(parsedValue['geoPointValue']['longitude'], '-84');
-      });
-
-      test('Testing this Map should be represented as a normal Map', () {
-        final mapValue = {
-          'names': {'firstname': 'James', 'lastname': 'Bond'}
-        };
-
-        final parsedValue = getFirestoreRepresentation(mapValue);
-        final fields = parsedValue['mapValue']['fields'];
-        final names = fields['names'];
-        final namesFields = names['mapValue']['fields'];
-        final firstname = namesFields['firstname']['stringValue'];
-        final lastname = namesFields['lastname']['stringValue'];
-
-        expect(firstname, 'James');
-        expect(lastname, 'Bond');
-      });
+      expect(parsedValue, expected);
     });
 
-    test('Testing List value representation', () {
-      final listValue = ['Billie Eillish', 'Ariana Grande', 'Vald'];
+    test(
+        "It should encode value as integerValue because it's a simple int."
+        "value will be transformed to String in accordance with how cloud firestore encode int", () {
+      final value = 26;
 
-      final parsedValue = getFirestoreRepresentation(listValue);
+      final parsedValue = encodeData(value);
+      final expected = {'integerValue': '26'};
 
-      final values = parsedValue['arrayValue']['values'];
-      final be = values[0]['stringValue'];
-      final ag = values[1]['stringValue'];
-      final v = values[2]['stringValue'];
-
-      expect(be, 'Billie Eillish');
-      expect(ag, 'Ariana Grande');
-      expect(v, 'Vald');
+      expect(parsedValue, expected);
     });
 
-    test('Testing null value representation', () {
-      final nullValue = null;
+    test("It should encode value as doubleValue because it's a simple double", () {
+      final doubleValue = 26.0;
 
-      final parsedValue = getFirestoreRepresentation(nullValue);
+      final parsedValue = encodeData(doubleValue);
+      final expected = {'doubleValue': 26.0};
 
-      expect(parsedValue['nullValue'], null);
+      expect(parsedValue, expected);
     });
 
-    test('Testing an unsupported firestore type given', () {
-      final Object unsupportedType = Object();
+    test("It should encode value as nullValue because value is null", () {
+      final value = null;
 
-      expect(() => getFirestoreRepresentation(unsupportedType), throwsException);
+      final parsedValue = encodeData(value);
+      final expected = {'nullValue': null};
+
+      expect(parsedValue, expected);
+    });
+
+    // And what if user only want to store it has a Map ? Thinkin' about it...
+    test("It should encode value as geoPointValue because it match geoPointValue pattern", () {
+      final value = {'latitude': '-64', 'longitude': '-84'};
+
+      final parsedValue = encodeData(value);
+
+      final expected = {
+        'geoPointValue': {'longitude': '-84', 'latitude': '-64'}
+      };
+
+      expect(parsedValue, expected);
+    });
+
+    test('It should encode value as mapValue', () {
+      final value = {
+        'names': {'firstname': 'James', 'lastname': 'Bond'}
+      };
+
+      final parsedValue = encodeData(value);
+
+      final expected = {
+        'mapValue': {
+          'fields': {
+            'names': {
+              'mapValue': {
+                'fields': {
+                  'firstname': {'stringValue': 'James'},
+                  'lastname': {'stringValue': 'Bond'},
+                }
+              }
+            }
+          }
+        }
+      };
+
+      expect(parsedValue, expected);
+    });
+
+    test('It should encode value as mapValue and dont create fields key when value is empty', () {
+      final value = {};
+
+      final parsedValue = encodeData(value);
+
+      final expected = {'mapValue': {}};
+
+      expect(parsedValue, expected);
+    });
+
+    test('It should encode array as arrayValue', () {
+      final array = ['Billie Eillish', 667, 09.11];
+
+      final encodedArray = encodeData(array);
+
+      final expected = {
+        'arrayValue': {
+          'values': [
+            {'stringValue': 'Billie Eillish'},
+            {'integerValue': '667'},
+            {'doubleValue': 09.11}
+          ]
+        }
+      };
+
+      expect(encodedArray, expected);
+    });
+
+    test('It should encode array as arrayValue and dont create a values key when value is empty', () {
+      final array = [];
+
+      final encodedArray = encodeData(array);
+
+      final expected = {'arrayValue': {}};
+
+      expect(encodedArray, expected);
+    });
+
+    test("It should throw an exception because value's type is not unsupported or cannot be determined", () {
+      final Object value = Object();
+
+      expect(() => encodeData(value), throwsException);
     });
   });
 }

@@ -2,177 +2,113 @@ import 'package:firestore_api_parser/firestore_api_parser.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('Testing extractMapData function', () {
-    test('Trying to parse a fake firestore map that not contains the "fields" field. Expecting to throw an Exception',
-        () {
-      final fakeFirestoreMap = {
-        '2006': {'stringValue': 'Casino Royale'}
-      };
+  test('It should decode value as Map', () {
+    final data = {
+      'fields': {
+        'name': {'stringValue': 'Billie Eilish'}
+      }
+    };
 
-      expect(() => extractMapData(fakeFirestoreMap), throwsException);
-    });
+    final decodedData = decodeMapData(data);
+    final expected = {'name': 'Billie Eilish'};
 
-    test(
-        'Trying to parse a good firestore map that contains "fields" field.\n'
-        'Expecting to get parsed data to a json format', () {
-      final goodFirestoreMap = {
-        'fields': {
-          '2006': {'stringValue': 'Casino Royale'}
-        }
-      };
-
-      final expectedData = {'2006': 'Casino Royale'};
-
-      final parsedData = extractMapData(goodFirestoreMap);
-
-      expect(parsedData['2006'].toString(), expectedData['2006']);
-    });
+    expect(decodedData, expected);
   });
 
-  group('Testing extractArrayData function', () {
-    test('retrieving a array Value with that contains "values" fields', () {
-      final arrayValue = {
-        'values': [
-          {'stringValue': 'Data 1'},
-          {'stringValue': 'Data 2'},
-          {'stringValue': 'Data 3'}
-        ]
-      };
-      final parsedArray = extractArrayData(arrayValue);
+  test('It should decode value as Map with empty entries', () {
+    final data = <String, dynamic>{};
 
-      expect(parsedArray.length, 3);
-    });
+    final decodedData = decodeMapData(data);
+    final expected = {};
 
-    test('retrieving a array Value with that does not contains "values" fields', () {
-      final arrayValue = {
-        'data': [
-          {'stringValue': 'Data 1'},
-          {'stringValue': 'Data 2'},
-          {'stringValue': 'Data 3'}
-        ]
-      };
-
-      final parsedArray = extractArrayData(arrayValue);
-      expect(parsedArray.length, 0);
-    });
+    expect(decodedData, expected);
   });
 
-  group('Testing parseToJson function from firestore map', () {
-    test('retrieving a String Value', () {
-      final stringValue = {'stringValue': 'Steeven Delucis'};
+  test('It should decode array', () {
+    final array = {
+      'values': [
+        {'stringValue': 'first'},
+        {'integerValue': '2'},
+        {'doubleValue': 09.11}
+      ]
+    };
+    final decodedArray = decodeArrayData(array);
 
-      final parsedValue = parseToJson(stringValue);
-      expect(parsedValue.runtimeType, String);
-    });
+    final expected = ['first', 2, 09.11];
 
-    test('retrieving a int Value', () {
-      final intValue = {'integerValue': 26};
-      final parsedValue = parseToJson(intValue);
+    expect(decodedArray, expected);
+  });
 
-      expect(parsedValue.runtimeType, int);
-    });
+  test('It should decode array with empty values', () {
+    final array = {};
+    final decodedArray = decodeArrayData(array);
 
-    test('retrieving a double Value', () {
-      final doubleValue = {'integerValue': 26.5};
-      final parsedValue = parseToJson(doubleValue);
+    final expected = [];
 
-      expect(parsedValue.runtimeType, double);
-    });
+    expect(decodedArray, expected);
+  });
 
-    test('retrieving a timestamp (DateTime) Value', () {
-      final timestampValue = {'timestampValue': '2021-10-07T19:00:00Z'};
-      final parsedValue = parseToJson(timestampValue);
+  test('It should decode value as String', () {
+    final value = MapEntry('stringValue', 'Steeven Delucis');
 
-      final dateTime = DateTime.parse(parsedValue);
+    final decodedValue = decodeData(value);
 
-      expect(parsedValue.runtimeType, String);
-      expect(dateTime.runtimeType, DateTime);
-    });
+    final expected = 'Steeven Delucis';
 
-    test('retrieving a bool Value', () {
-      final booleanValue = {'booleanValue': true};
-      final parsedValue = parseToJson(booleanValue);
+    expect(decodedValue, expected);
+  });
 
-      expect(parsedValue.runtimeType, bool);
-    });
+  test('It should decode value as int', () {
+    final value = MapEntry('integerValue', '26');
 
-    test('retrieving a gepPoint Value', () {
-      final booleanValue = {
-        'geoPointValue': {'latitude': '-64', 'longitude': '-86'}
-      };
-      final parsedValue = parseToJson(booleanValue);
+    final decodedValue = decodeData(value);
+    final expected = 26;
 
-      expect(parsedValue['latitude'], '-64');
-      expect(parsedValue['longitude'], '-86');
-    });
+    expect(decodedValue, expected);
+  });
 
-    test('retrieving a reference Value', () {
-      final referenceValue = {'referenceValue': 'projects/my_project/databases/(default)/documents/USERS/an_user_id'};
-      final parsedValue = parseToJson(referenceValue);
+  test('It should decode value as double', () {
+    final value = MapEntry('doubleValue', 09.11);
 
-      expect(parsedValue.runtimeType, String);
-    });
+    final decodedValue = decodeData(value);
+    final expected = 09.11;
 
-    test('retrieving a String Value', () {
-      final stringValue = {'stringValue': 'Steeven Delucis'};
+    expect(decodedValue, expected);
+  });
 
-      final parsedValue = parseToJson(stringValue);
-      expect(parsedValue.runtimeType, String);
-    });
+  test('It should decode value as bool', () {
+    final value = MapEntry('booleanValue', true);
 
-    test('retrieving a int Value', () {
-      final intValue = {'integerValue': 26};
-      final parsedValue = parseToJson(intValue);
+    final decodedValue = decodeData(value);
+    final expected = true;
 
-      expect(parsedValue.runtimeType, int);
-    });
+    expect(decodedValue, expected);
+  });
 
-    test('retrieving a double Value', () {
-      final doubleValue = {'integerValue': 26.5};
-      final parsedValue = parseToJson(doubleValue);
+  test('It should decode value as Map (geoPointValue)', () {
+    final value = MapEntry('geoPointValue', {'latitude': '-64', 'longitude': '-86'});
 
-      expect(parsedValue.runtimeType, double);
-    });
+    final decodedValue = decodeData(value);
+    final expected = {'latitude': '-64', 'longitude': '-86'};
 
-    test('retrieving a timestamp (DateTime) Value', () {
-      final timestampValue = {'timestampValue': '2021-10-07T19:00:00Z'};
-      final parsedValue = parseToJson(timestampValue);
+    expect(decodedValue, expected);
+  });
 
-      final dateTime = DateTime.parse(parsedValue);
+  test('It should decode value as String (referenceValue)', () {
+    final value = MapEntry('referenceValue', 'projects/my_project/databases/(default)/documents/USERS/abc123');
 
-      expect(parsedValue.runtimeType, String);
-      expect(dateTime.runtimeType, DateTime);
-    });
+    final decodedValue = decodeData(value);
+    final expected = 'projects/my_project/databases/(default)/documents/USERS/abc123';
 
-    test('retrieving a bool Value', () {
-      final booleanValue = {'booleanValue': true};
-      final parsedValue = parseToJson(booleanValue);
+    expect(decodedValue, expected);
+  });
 
-      expect(parsedValue.runtimeType, bool);
-    });
+  test('It should decode/return value as null', () {
+    final value = MapEntry('nullValue', null);
 
-    test('retrieving a gepPoint Value', () {
-      final booleanValue = {
-        'geoPointValue': {'latitude': '-64', 'longitude': '-86'}
-      };
-      final parsedValue = parseToJson(booleanValue);
+    final decodedValue = decodeData(value);
+    final expected = null;
 
-      expect(parsedValue['latitude'], '-64');
-      expect(parsedValue['longitude'], '-86');
-    });
-
-    test('retrieving a reference Value', () {
-      final referenceValue = {'referenceValue': 'projects/my_project/databases/(default)/documents/USERS/an_user_id'};
-      final parsedValue = parseToJson(referenceValue);
-
-      expect(parsedValue.runtimeType, String);
-    });
-
-    test('retrieving a null Value', () {
-      final nullValue = {'nullValue': null};
-
-      final parsedData = parseToJson(nullValue);
-      expect(parsedData, null);
-    });
+    expect(decodedValue, expected);
   });
 }
