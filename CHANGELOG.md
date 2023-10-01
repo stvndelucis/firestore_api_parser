@@ -65,7 +65,7 @@ In this update, we
 - intl package upgraded to ^0.18.0
 - environnement constraint upgraded to '>=2.12.0 <4.0.0'
 
-## 1.1.2
+## 2.0.0
 
 **BREAKING CHANGES!**
 
